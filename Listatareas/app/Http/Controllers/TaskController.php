@@ -1,18 +1,16 @@
 <?php
 
-// app/Http/Controllers/TaskController.php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Task;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
     public function index()
     {
-        $tasks = auth()->user()->tasks()->get();
-
+        $tasks = Auth::user()->tasks; // Obtener las tareas del usuario autenticado
         return view('home', compact('tasks'));
     }
 
@@ -22,18 +20,32 @@ class TaskController extends Controller
     }
 
     public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'due_date' => 'nullable|date',
+        'priority' => 'required|in:Low,Medium,High',
+        'status' => 'required|in:Pending,In Progress,Completed',
+    ]);
+
+    $task = new Task();
+    $task->title = $request->input('title');
+    $task->description = $request->input('description');
+    $task->due_date = $request->input('due_date');
+    $task->priority = $request->input('priority');
+    $task->status = $request->input('status');
+
+    Auth::user()->tasks()->save($task);
+
+    return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
+}
+
+
+    public function show(Task $task)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'due_date' => 'required|date',
-            'priority' => 'required|in:Low,Medium,High',
-            'status' => 'required|in:Pending,In Progress,Completed',
-        ]);
-
-        auth()->user()->tasks()->create($request->all());
-
-        return redirect()->route('tasks.index')->with('success', 'Tarea creada exitosamente.');
+        
+        return view('tasks.show', compact('task'));
     }
 
     public function edit(Task $task)
@@ -43,24 +55,26 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
+        
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'due_date' => 'required|date',
+            'due_date' => 'nullable|date',
             'priority' => 'required|in:Low,Medium,High',
             'status' => 'required|in:Pending,In Progress,Completed',
         ]);
 
         $task->update($request->all());
 
-        return redirect()->route('tasks.index')->with('success', 'Tarea actualizada exitosamente.');
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
 
     public function destroy(Task $task)
     {
+        
         $task->delete();
 
-        return redirect()->route('tasks.index')->with('success', 'Tarea eliminada exitosamente.');
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
 }
-
