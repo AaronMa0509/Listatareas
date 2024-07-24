@@ -2,7 +2,10 @@
 
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
+use App\Models\Task;
 use App\Http\Controllers\TaskController;
+use App\Mail\RecordatorioMailable;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,3 +26,28 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
+
+Route::get('recordatorio',function(){
+    
+    Mail::to('tasklist@gmail.com')->send(new RecordatorioMailable);
+
+    return "Mensaje enviado";
+
+})->name('recordatorio');
+
+
+Route::get('test-email', function () {
+    // Obtener todas las tareas que vencen en las próximas 24 horas
+    $tasks = Task::where('due_date', '>', now())
+                 ->where('due_date', '<=', now()->addDay())
+                 ->get();
+
+    if ($tasks->isNotEmpty()) {
+        foreach ($tasks as $task) {
+            Mail::to($task->user->email)->send(new RecordatorioMailable($task));
+        }
+        return 'Correos enviados a ' . $tasks->count() . ' tareas.';
+    } else {
+        return 'No hay tareas para enviar.';
+    }
+})->name('test-email');
