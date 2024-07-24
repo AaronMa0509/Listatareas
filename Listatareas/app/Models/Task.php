@@ -22,9 +22,15 @@ class Task extends Model
         'status',
     ];
 
+    protected $dates = ['due_date'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function reminders()
+    {
+        return $this->hasMany(Reminder::class, 'task_id');
     }
 }
 

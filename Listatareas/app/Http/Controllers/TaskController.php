@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RecordatorioMailable;
 
 class TaskController extends Controller
 {
@@ -38,6 +40,10 @@ class TaskController extends Controller
 
     Auth::user()->tasks()->save($task);
 
+    $task->due_date = \Carbon\Carbon::parse($task->due_date);
+
+    Mail::to(Auth::user()->email)->send(new RecordatorioMailable($task, 'new'));
+
     return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
 }
 
@@ -67,6 +73,8 @@ class TaskController extends Controller
 
         $task->update($request->all());
 
+        Mail::to(Auth::user()->email)->send(new RecordatorioMailable($task, 'update'));
+
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
 
@@ -74,6 +82,8 @@ class TaskController extends Controller
     {
         
         $task->delete();
+
+        Mail::to(Auth::user()->email)->send(new RecordatorioMailable($task));
 
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
