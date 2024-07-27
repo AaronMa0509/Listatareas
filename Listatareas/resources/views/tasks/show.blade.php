@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="container">
-        <div class="card">
+        <div class="card shadow-lg border-dark rounded">
             <div class="card-header">
                 Detalles de la Tarea
             </div>

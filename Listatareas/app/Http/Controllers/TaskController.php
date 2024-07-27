@@ -10,9 +10,20 @@ use App\Mail\RecordatorioMailable;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Auth::user()->tasks; // Obtener las tareas del usuario autenticado
+        $tasks = Auth::user()->tasks(); // Obtener las tareas del usuario autenticado
+    
+        // Aplicar filtro por prioridad si se proporciona
+        if ($request->has('priority') && $request->input('priority') != '') {
+            $tasks = $tasks->where('priority', $request->input('priority'));
+        }
+    
+        // Ordenar tareas, completadas al final
+        $tasks = $tasks->orderBy('status', 'asc') // Ordena por estado (Pendiente, En Progreso, Completada)
+                       ->orderBy('due_date', 'asc') // Ordena por fecha de vencimiento
+                       ->get(); // Obtener las tareas después de aplicar el filtro
+    
         return view('home', compact('tasks'));
     }
 
@@ -77,6 +88,17 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+    $task = Task::find($id);
+    $task->status = $request->input('status');
+    $task->save();
+
+    return redirect()->route('tasks.index')->with('success', 'Estado de la tarea actualizado con éxito.');
+    }
+
+    
 
     public function destroy(Task $task)
     {

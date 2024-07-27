@@ -27,6 +27,9 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
 
+Route::put('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+
+
 Route::get('recordatorio',function(){
     
     Mail::to('tasklist@gmail.com')->send(new RecordatorioMailable);
