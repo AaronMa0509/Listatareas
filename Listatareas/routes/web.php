@@ -30,6 +30,9 @@ Route::middleware(['auth'])->group(function () {
 Route::put('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
 
 
+Route::post('send-reminder', [TaskController::class, 'sendReminder'])->name('send-reminder');
+
+
 Route::get('recordatorio',function(){
     
     Mail::to('tasklist@gmail.com')->send(new RecordatorioMailable);

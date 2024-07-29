@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // Programar el envío de recordatorios de tareas diariamente
-        $schedule->command('reminders:send')->everyFiveMinutes();
+        $schedule->command('tasks:remind')->hourly();
     }
 
     /**

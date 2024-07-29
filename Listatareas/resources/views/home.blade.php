@@ -73,4 +73,26 @@
             </div>
         </div>
     </div>
+    @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function sendReminder(taskId) {
+            $.ajax({
+                url: "{{ route('send-reminder') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    task_id: taskId
+                },
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(xhr) {
+                    alert('Hubo un error: ' + xhr.responseJSON.message);
+                }
+            });
+        }
+    </script>
+    @endpush
+
 @endsection

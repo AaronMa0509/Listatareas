@@ -98,7 +98,25 @@ class TaskController extends Controller
     return redirect()->route('tasks.index')->with('success', 'Estado de la tarea actualizado con éxito.');
     }
 
+    public function sendReminder(Request $request)
+    {
+        // Validar la solicitud
+        $request->validate([
+            'task_id' => 'required|integer|exists:tasks,id',
+        ]);
     
+        // Obtener la tarea
+        $task = Task::find($request->input('task_id'));
+    
+        if (!$task) {
+            return response()->json(['message' => 'Tarea no encontrada.'], 404);
+        }
+    
+        // Enviar el correo
+        Mail::to($task->user->email)->send(new RecordatorioMailable($task));
+    
+        return response()->json(['message' => 'Correo enviado con éxito.']);
+    }
 
     public function destroy(Task $task)
     {
